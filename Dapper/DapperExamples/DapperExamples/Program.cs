@@ -103,6 +103,27 @@ namespace DapperExamples
                 breweryList.ForEach(x => Console.WriteLine("Example 5 - Retrieved Brewery: [" + "Name: " + x.Name + " | Country: " + x.Country
                     + " | CEO: " + x.Ceo + " | Year Established: " + x.YearEstablished + "]"));
             }
+			
+			//Example #6 - Async execution of query which returns multiple record set mapped to a tuple of classes (with empty resultset)
+            Console.WriteLine("\n\n\n\n\n\n\n\n");
+            Console.WriteLine("//Example #6 - Async execution of query which returns multiple record set mapped to a tuple of classes (with empty resultset)");
+            var example6Result = await dataAccessService.QueryMultipleAsync<Beer, Brewery, Brewery>("Select * from beer; Select * from brewery where 1=2; Select * from brewery");
+            if (example6Result.IsSuccess)
+            {
+                List<Beer> beerList = example6Result.ListT1;
+                List<Brewery> breweryList = example6Result.ListT2;
+                List<Brewery> breweryList2 = example6Result.ListT3;
+                Console.WriteLine("Expanding the first record set - beer:");
+                beerList.ForEach(x => Console.WriteLine("Example 6 - Retrieved Beer: [" + "Name: " + x.Name + " | Company: " + x.Company + " | Style: " + x.Style + "]"));
+
+                Console.WriteLine("Expanding the second record set (This should be an empty record set) - brewery:");
+                breweryList.ForEach(x => Console.WriteLine("Example 6 - Retrieved Brewery: [" + "Name: " + x.Name + " | Country: " + x.Country
+                    + " | CEO: " + x.Ceo + " | Year Established: " + x.YearEstablished + "]"));
+
+                Console.WriteLine("Expanding the third record set - brewery:");
+                breweryList2.ForEach(x => Console.WriteLine("Example 6 - Retrieved Brewery: [" + "Name: " + x.Name + " | Country: " + x.Country
+                    + " | CEO: " + x.Ceo + " | Year Established: " + x.YearEstablished + "]"));
+            }
         }
     }
 }
