@@ -45,6 +45,11 @@ namespace ProtoActorWebApiDemo.Actor.EventActor
                             await InvokeCreateBeerEventAsync(context, e);
                             break;
                         }
+                    case UpdateBeerByIdEvent e:
+                        {
+                            await InvokeUpdateBeerByIdEventAsync(context, e);
+                            break;
+                        }                        
                     case DeleteBeerByIdEvent e:
                         {
                             await InvokeDeleteBeerByIdEventAsync(context, e);
@@ -99,6 +104,17 @@ namespace ProtoActorWebApiDemo.Actor.EventActor
             parameters.Add("Style", e.Beer.Style);
             var (IsSuccess, RowsAffected) = await dataAccessService.ExecuteAsync("Insert into Beer (Name, Company, Style) values (@Name, @Company, @Style)", false, parameters);
             context.Respond(IsSuccess);
+        }
+
+        private async Task InvokeUpdateBeerByIdEventAsync(IContext context, UpdateBeerByIdEvent e)
+        {
+            var parameters = new DynamicParameters();
+            parameters.Add("Id", e.Id);
+            parameters.Add("Name", e.Beer.Name);
+            parameters.Add("Company", e.Beer.Company);
+            parameters.Add("Style", e.Beer.Style);
+            var (IsSuccess, RowsAffected) = await dataAccessService.ExecuteAsync("Update Beer set Name = @Name, Company = @Company, Style = @Style where Id = @Id", false, parameters);
+            context.Respond((IsSuccess, RowsAffected));
         }
 
         private async Task InvokeDeleteBeerByIdEventAsync(IContext context, DeleteBeerByIdEvent e)

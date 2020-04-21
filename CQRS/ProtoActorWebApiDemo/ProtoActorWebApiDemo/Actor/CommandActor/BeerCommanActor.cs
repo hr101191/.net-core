@@ -47,20 +47,14 @@ namespace ProtoActorWebApiDemo.Domain.CommandActor
                             await InvokeCreateBeerCommandAsync(context, command);
                             break;
                         }
+                    case UpdateBeerByIdCommand command:
+                        {
+                            await InvokeUpdateBeerByIdCommandAsync(context, command);
+                            break;
+                        }
                     case DeleteBeerByIdCommand command:
                         {
                             await InvokeDeleteBeerByIdCommandAsync(context, command);
-                            break;
-                        }
-                        
-                    case Stopping stopping:
-                        {
-                            Console.WriteLine("beer command actor stopping");
-                            break;
-                        }
-                    case Stop stop:
-                        {
-                            Console.WriteLine("beer command actor stopped");
                             break;
                         }
                     default:
@@ -98,6 +92,13 @@ namespace ProtoActorWebApiDemo.Domain.CommandActor
             var triggeredEvent = new CreateBeerEvent(command.Beer);
             bool isSuccess = await actorManager.RequestAsync<BeerEventActor, bool>(triggeredEvent);
             context.Respond(isSuccess);
+        }
+
+        private async Task InvokeUpdateBeerByIdCommandAsync(IContext context, UpdateBeerByIdCommand command)
+        {
+            var triggeredEvent = new UpdateBeerByIdEvent(command.Id, command.Beer);
+            var (IsSuccess, RowsAffected) = await actorManager.RequestAsync<BeerEventActor, (bool, int)>(triggeredEvent);
+            context.Respond((IsSuccess, RowsAffected));
         }
 
         private async Task InvokeDeleteBeerByIdCommandAsync(IContext context, DeleteBeerByIdCommand command)

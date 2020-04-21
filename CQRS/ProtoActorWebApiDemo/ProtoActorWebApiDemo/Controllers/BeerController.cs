@@ -26,6 +26,9 @@ namespace ProtoActorWebApiDemo.Controllers
             _actorManager = actorManager;
         }
 
+        /// <summary>
+        /// Fetch all existing Beer objects in database
+        /// </summary>
         [HttpGet]
         public async Task<ActionResult> GetAllBeer ()
         {
@@ -38,10 +41,13 @@ namespace ProtoActorWebApiDemo.Controllers
             catch (Exception ex)
             {
                 Console.WriteLine(ex.StackTrace);
-                return Ok();
+                return StatusCode(500);
             }
         }
 
+        /// <summary>
+        /// Get an existing Beer object in database by Id
+        /// </summary>
         [Route("id/{id}")]
         [HttpGet]
         public async Task<ActionResult> GetBeerById(long id)
@@ -55,11 +61,21 @@ namespace ProtoActorWebApiDemo.Controllers
             catch (Exception ex)
             {
                 Console.WriteLine(ex.StackTrace);
-                return Ok();
+                return StatusCode(500);
             }
-            
+
         }
 
+        /// <summary>
+        /// Create a new Beer object
+        /// 
+        /// Payload:
+        /// {
+	    ///     "name": "Miller Blonde",
+        ///     "company": "Molson Coors Beverage Company",
+        ///     "style": "Pale Lager"
+        /// }
+        /// </summary>
         [HttpPost]
         public async Task<ActionResult> CreateBeer(Beer beer)
         {
@@ -72,13 +88,51 @@ namespace ProtoActorWebApiDemo.Controllers
             catch (Exception ex)
             {
                 Console.WriteLine(ex.StackTrace);
-                return Ok();
+                return StatusCode(500);
             }
 
         }
 
+        /// <summary>
+        /// Update an existing new Beer object in database by Id
+        /// 
+        /// Payload:
+        /// {
+        ///     "name": "Miller Blonde",
+        ///     "company": "Molson Coors Beverage Company",
+        ///     "style": "Pale Lager"
+        /// }
+        /// </summary>
         [Route("id/{id}")]
         [HttpPut]
+        public async Task<ActionResult> UpdateBeerById(long id, Beer beer)
+        {
+            try
+            {
+                var command = new UpdateBeerByIdCommand(id, beer);
+                var (isSuccess, rowsAffected) = await _actorManager.RequestAsync<BeerCommandActor, (bool, int)>(command);
+                if (isSuccess && rowsAffected > 0)
+                {
+                    return StatusCode(204);
+                }
+                else if (isSuccess && rowsAffected == 0)
+                {
+                    return StatusCode(404);
+                }
+                return StatusCode(500);
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine(ex.StackTrace);
+                return StatusCode(500);
+            }
+        }
+
+        /// <summary>
+        /// Delete an existing Beer object in database by Id
+        /// </summary>
+        [Route("id/{id}")]
+        [HttpDelete]
         public async Task<ActionResult> DeleteBeerById(long id)
         {
             try
@@ -87,11 +141,11 @@ namespace ProtoActorWebApiDemo.Controllers
                 var (isSuccess, rowsAffected) = await _actorManager.RequestAsync<BeerCommandActor, (bool, int)>(command);
                 if (isSuccess && rowsAffected > 0)
                 {
-                    return StatusCode(200);
+                    return StatusCode(204);
                 }
                 else if (isSuccess && rowsAffected == 0)
                 {
-                    return StatusCode(204);
+                    return StatusCode(404);
                 }
                 return StatusCode(500);
             }
