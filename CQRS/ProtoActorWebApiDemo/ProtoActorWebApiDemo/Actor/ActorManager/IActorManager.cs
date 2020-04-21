@@ -9,9 +9,7 @@ namespace ProtoActorWebApiDemo.Domain.ActorManager
     public interface IActorManager
     {
         Task SendAsync<T>(object message) where T : IActor;
-        Task<U> RequestAsync<T, U>(object message) 
-            where T : IActor
-            where U : class;
-
+        Task<U> RequestAsync<T, U>(object message)
+            where T : IActor;
     }
 }

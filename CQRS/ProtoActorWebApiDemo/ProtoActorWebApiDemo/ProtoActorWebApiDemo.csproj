@@ -13,8 +13,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Folder Include="Actor\EventActor\" />
-    <Folder Include="Domain\Event\" />
+    <Folder Include="Actor\http\" />
   </ItemGroup>
 
 

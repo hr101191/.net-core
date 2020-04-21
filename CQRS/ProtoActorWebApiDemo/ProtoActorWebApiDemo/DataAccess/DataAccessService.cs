@@ -47,7 +47,7 @@ namespace ProtoActorWebApiDemo.DataAccess
         /// <param name="sql">String - A sql query or stored procedure name</param>
         /// <param name="isStoredProcedure">Boolean - Whether query is a stored procedure</param>
         /// <param name="parameters">DynamicParameters - sql parameters</param>
-        public async Task ExecuteAsync(string sql, bool isStoredProcedure = false, DynamicParameters parameters = null)
+        public async Task<(bool IsSuccess, int RowsAffected)> ExecuteAsync(string sql, bool isStoredProcedure = false, DynamicParameters parameters = null)
         {
             using (var connection = new SqliteConnection(_connectionStringBuilder.ConnectionString))
             {
@@ -56,6 +56,7 @@ namespace ProtoActorWebApiDemo.DataAccess
                 {
                     try
                     {
+                        int rowsAffected = 0;
                         if (isStoredProcedure)
                         {
                             Console.WriteLine("Executing stored procedure: [" + sql + "]");
@@ -65,7 +66,7 @@ namespace ProtoActorWebApiDemo.DataAccess
                         else
                         {
                             Console.WriteLine("Executing query: [" + sql + "]");
-                            await connection.ExecuteAsync(sql, parameters);
+                            rowsAffected = await connection.ExecuteAsync(sql, parameters);
                         }
                         if (parameters != null)
                         {
@@ -75,11 +76,13 @@ namespace ProtoActorWebApiDemo.DataAccess
                             }
                         }
                         await transaction.CommitAsync();
+                        return (true, rowsAffected);
                     }
                     catch (Exception ex)
                     {
                         await transaction.RollbackAsync();
                         Console.WriteLine("Error! Transaction rolled back, stacktrace: " + ex.StackTrace);
+                        return (false, 0);
                     }
                 }
             }

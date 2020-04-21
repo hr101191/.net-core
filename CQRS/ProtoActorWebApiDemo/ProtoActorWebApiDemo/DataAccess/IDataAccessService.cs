@@ -9,7 +9,7 @@ namespace ProtoActorWebApiDemo.DataAccess
     public interface IDataAccessService
     {
         Task InitData();
-        Task ExecuteAsync(string sql, bool isStoredProcedure = false, DynamicParameters parameters = null);
+        Task<(bool IsSuccess, int RowsAffected)> ExecuteAsync(string sql, bool isStoredProcedure = false, DynamicParameters parameters = null);
         Task<(bool IsSuccess, List<T> Result)> QueryAsync<T>(string sql, bool isStoredProcedure = false, DynamicParameters parameters = null) where T : class;
         Task<(bool IsSuccess, List<T1> ListT1, List<T2> ListT2)> QueryMultipleAsync
             <T1, T2>(string sql, bool isStoredProcedure = false, DynamicParameters parameters = null)

@@ -3,12 +3,12 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 
-namespace ProtoActorWebApiDemo.Domain.Command.Beer
+namespace ProtoActorWebApiDemo.Domain.Event.BeerEvent
 {
-    public class GetBeerByIdCommand
+    public class GetBeerByIdEvent
     {
         public long Id { get; }
-        public GetBeerByIdCommand(long id)
+        public GetBeerByIdEvent(long id)
         {
             Id = id;
         }

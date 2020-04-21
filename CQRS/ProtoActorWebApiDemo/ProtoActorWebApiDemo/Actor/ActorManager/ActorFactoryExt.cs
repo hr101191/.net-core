@@ -1,5 +1,7 @@
 ﻿using Microsoft.Extensions.DependencyInjection;
 using Proto;
+using ProtoActorWebApiDemo.Actor.EventActor;
+using ProtoActorWebApiDemo.DataAccess;
 using ProtoActorWebApiDemo.Domain.CommandActor;
 using System;
 
@@ -16,24 +18,22 @@ namespace ProtoActorWebApiDemo.Domain.ActorManager
                 //attached console tracing
                 props.RegisterProps<BeerCommandActor>(p => p.WithReceiverMiddleware(next => async (c, env) =>
                 {
-                    Console.WriteLine($"enter diactor1 {env.Message.GetType().FullName}");
+                    Console.WriteLine($"enter actor {env.Message.GetType().FullName} {c.Actor} {c.Sender} {c.Sender} {env.Message}");
                     await next(c, env);
-                    Console.WriteLine($"exit diactor1 {env.Message.GetType().FullName}");
+                    Console.WriteLine($"exit actor {env.Message.GetType().FullName} {c.Actor} {c.Sender} {env.Message}");
                 }));
-                //props.RegisterProps<DIActor2>(p => p.WithReceiverMiddleware(next => async (c, env) =>
-                //{
-                //    Console.WriteLine($"enter diactor2 {env.Message.GetType().FullName}");
-                //    await next(c, env);
-                //    Console.WriteLine($"exit diactor2 {env.Message.GetType().FullName}");
-                //}));
+                props.RegisterProps<BeerEventActor>(p => p.WithReceiverMiddleware(next => async (c, env) =>
+                {
+                    Console.WriteLine($"enter actor {env.Message.GetType().FullName} {c.Sender} {env.Message}");
+                    await next(c, env);
+                    Console.WriteLine($"exit actor {env.Message.GetType().FullName} {c.Sender} {env.Message}");
+                }));
             });
 
-            //services.AddTransient<IActorManager, ActorManager>();
-            services.AddSingleton<IActorManager, ActorManager>();
-
             //Actors should be injected as Transient as it should be created with each request
-            services.AddTransient<IBeerCommandActor, BeerCommandActor>();
-            //services.AddTransient<IDIActor2, DIActor2>();
+            services.AddTransient<IActorManager, ActorManager>();
+            services.AddTransient<IActor, BeerCommandActor>();
+            services.AddTransient<IActor, BeerEventActor>();
         }
     }
 }
