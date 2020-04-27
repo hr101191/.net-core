@@ -172,7 +172,7 @@ namespace DapperExamples.Service
 
         /// <summary>
         /// Executes a sql statement/ stored procedure with output (multiple result set) asynchronously
-        /// Suports two input types
+        /// Suports three input types
         /// *Note: though Dapper calls it "Query", it supports all CRUD operations with a return type
         /// 
         /// Type parameters:
@@ -232,7 +232,7 @@ namespace DapperExamples.Service
 
         /// <summary>
         /// Executes a sql statement/ stored procedure with output (multiple result set) asynchronously
-        /// Suports two input types
+        /// Suports four input types
         /// *Note: though Dapper calls it "Query", it supports all CRUD operations with a return type
         /// 
         /// Type parameters:
@@ -298,7 +298,7 @@ namespace DapperExamples.Service
 
         /// <summary>
         /// Executes a sql statement/ stored procedure with output (multiple result set) asynchronously
-        /// Suports two input types
+        /// Suports five input types
         /// *Note: though Dapper calls it "Query", it supports all CRUD operations with a return type
         /// 
         /// Type parameters:
@@ -370,7 +370,7 @@ namespace DapperExamples.Service
 
         /// <summary>
         /// Executes a sql statement/ stored procedure with output (multiple result set) asynchronously
-        /// Suports two input types
+        /// Suports six input types
         /// *Note: though Dapper calls it "Query", it supports all CRUD operations with a return type
         /// 
         /// Type parameters:
@@ -448,7 +448,7 @@ namespace DapperExamples.Service
 
         /// <summary>
         /// Executes a sql statement/ stored procedure with output (multiple result set) asynchronously
-        /// Suports two input types
+        /// Suports seven input types
         /// *Note: though Dapper calls it "Query", it supports all CRUD operations with a return type
         /// 
         /// Type parameters:
@@ -527,6 +527,53 @@ namespace DapperExamples.Service
             {
                 Console.Error.WriteLine(ex);
                 return (false, null, null, null, null, null, null, null);
+            }
+        }
+
+        /// <summary>
+        /// Executes a sql statement/ stored procedure with output (multiple result set) asynchronously
+        /// Suports two input types
+        /// *Note: though Dapper calls it "Query", it supports all CRUD operations with a return type
+        /// This method can be used when # of record set returned is > 7
+        /// </summary>
+        /// <returns>
+        /// Is the transaction successful?, List of IEnumerable object, where object is list of Dto Model (to be resolved seperately via Linq casting)
+        /// </returns>
+        /// <param name="sql">String - A sql query or stored procedure name</param>
+        /// <param name="isStoredProcedure">Boolean - Whether query is a stored procedure</param>
+        /// <param name="parameters">DynamicParameters - sql parameters</param>
+        /// <param name="mapToType">params Type [] - array of Dto Model Type</param>
+        public async Task<(bool IsSuccess, List<IEnumerable<object>> Result)> QueryMultipleAsync
+            (string sql, bool isStoredProcedure = false, DynamicParameters parameters = null, params Type[] mapToType)
+        {
+            try
+            {
+                List<IEnumerable<object>> list = new List<IEnumerable<object>>();
+                using (var connection = new SqliteConnection(_connectionStringBuilder.ConnectionString))
+                {
+                    await connection.OpenAsync();
+                    GridReader resultSet;
+                    if (isStoredProcedure)
+                    {
+                        Console.WriteLine("Executing stored procedure: [" + sql + "]");
+                        resultSet = await connection.QueryMultipleAsync(sql, parameters, commandType: CommandType.StoredProcedure);
+                    }
+                    else
+                    {
+                        Console.WriteLine("Executing query: [" + sql + "]");
+                        resultSet = await connection.QueryMultipleAsync(sql, parameters);
+                    }
+                    foreach (var type in mapToType)
+                    {
+                        list.Add(await resultSet.ReadAsync(type));
+                    }
+                }
+                return (true, list);
+            }
+            catch (Exception ex)
+            {
+                Console.Error.WriteLine(ex);
+                return (false, null);
             }
         }
 

@@ -4,6 +4,7 @@ using DapperExamples.Mapper;
 using DapperExamples.Service;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 
 namespace DapperExamples
@@ -124,6 +125,39 @@ namespace DapperExamples
                 breweryList2.ForEach(x => Console.WriteLine("Example 6 - Retrieved Brewery: [" + "Name: " + x.Name + " | Country: " + x.Country
                     + " | CEO: " + x.Ceo + " | Year Established: " + x.YearEstablished + "]"));
             }
+
+            //Example #7 - Async execution of query with multiple record set, delayed resolving of recordsets (can be used when # of record sets returned > 7)
+            Console.WriteLine("\n\n\n\n\n\n\n\n");
+            Console.WriteLine("//Example #7 -  Async execution of query with multiple record set, delayed resolving of recordsets (can be used when # of record sets returned > 7)");
+
+            Type[] mapToTypes = { typeof(Beer), typeof(Brewery), typeof(Brewery), typeof(Beer) }; //Type array
+
+            var example7Result = await dataAccessService.QueryMultipleAsync("Select * from beer; Select * from brewery; Select * from brewery; Select * from beer", false, null, mapToTypes);
+            if (example7Result.IsSuccess)
+            {
+                //resolve after retrieving through casting
+                List<IEnumerable<object>> result = example7Result.Result;
+                List<Beer> beerList = result[0].Cast<Beer>().ToList();
+                List<Brewery> breweryList = result[1].Cast<Brewery>().ToList();
+                List<Brewery> breweryList2 = result[2].Cast<Brewery>().ToList();
+                List<Beer> beerList2 = result[3].Cast<Beer>().ToList();
+
+                Console.WriteLine("Expanding the first record set - beer:");
+                beerList.ForEach(x => Console.WriteLine("Example 7 - Retrieved Beer: [" + "Name: " + x.Name + " | Company: " + x.Company + " | Style: " + x.Style + "]"));
+
+                Console.WriteLine("Expanding the second record set - brewery:");
+                breweryList.ForEach(x => Console.WriteLine("Example 7 - Retrieved Brewery: [" + "Name: " + x.Name + " | Country: " + x.Country
+                    + " | CEO: " + x.Ceo + " | Year Established: " + x.YearEstablished + "]"));
+
+                Console.WriteLine("Expanding the third record set - brewery:");
+                breweryList2.ForEach(x => Console.WriteLine("Example 7 - Retrieved Brewery: [" + "Name: " + x.Name + " | Country: " + x.Country
+                    + " | CEO: " + x.Ceo + " | Year Established: " + x.YearEstablished + "]"));
+
+                Console.WriteLine("Expanding the fourth record set - beer:");
+                beerList.ForEach(x => Console.WriteLine("Example 7 - Retrieved Beer: [" + "Name: " + x.Name + " | Company: " + x.Company + " | Style: " + x.Style + "]"));
+            }
+
+            Console.ReadLine();
         }
     }
 }
